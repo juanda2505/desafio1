@@ -5,7 +5,9 @@ project(desafio1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(desafio1 main.cpp)
+add_executable(desafio1 main.cpp
+    funciones.h
+    fichas.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS desafio1

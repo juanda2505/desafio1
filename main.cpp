@@ -1,5 +1,5 @@
 #include <iostream>
-#include "fichas.h"
+#include "funciones.h"
 
 // Imprime un byte en binario, MSB primero (para comparar visualmente
 // con las figuras del documento).
