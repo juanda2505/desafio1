@@ -1,0 +1,7 @@
+C:/Users/Usuario/OneDrive/Documentos/UDEA/5SEMESTRE/info2/desa/desafio1/build/Desktop_Qt_6_11_2_MinGW_64_bit_Debug/CMakeFiles/desafio1.dir
+C:/Users/Usuario/OneDrive/Documentos/UDEA/5SEMESTRE/info2/desa/desafio1/build/Desktop_Qt_6_11_2_MinGW_64_bit_Debug/CMakeFiles/edit_cache.dir
+C:/Users/Usuario/OneDrive/Documentos/UDEA/5SEMESTRE/info2/desa/desafio1/build/Desktop_Qt_6_11_2_MinGW_64_bit_Debug/CMakeFiles/rebuild_cache.dir
+C:/Users/Usuario/OneDrive/Documentos/UDEA/5SEMESTRE/info2/desa/desafio1/build/Desktop_Qt_6_11_2_MinGW_64_bit_Debug/CMakeFiles/list_install_components.dir
+C:/Users/Usuario/OneDrive/Documentos/UDEA/5SEMESTRE/info2/desa/desafio1/build/Desktop_Qt_6_11_2_MinGW_64_bit_Debug/CMakeFiles/install.dir
+C:/Users/Usuario/OneDrive/Documentos/UDEA/5SEMESTRE/info2/desa/desafio1/build/Desktop_Qt_6_11_2_MinGW_64_bit_Debug/CMakeFiles/install/local.dir
+C:/Users/Usuario/OneDrive/Documentos/UDEA/5SEMESTRE/info2/desa/desafio1/build/Desktop_Qt_6_11_2_MinGW_64_bit_Debug/CMakeFiles/install/strip.dir

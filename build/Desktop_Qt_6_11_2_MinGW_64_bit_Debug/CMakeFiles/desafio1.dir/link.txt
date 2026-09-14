@@ -1,0 +1,3 @@
+C:\Users\Usuario\OneDrive\Documentos\JUAN\qt\Tools\CMake_64\bin\cmake.exe -E rm -f CMakeFiles\desafio1.dir/objects.a
+C:\Users\Usuario\OneDrive\Documentos\JUAN\qt\Tools\mingw1310_64\bin\ar.exe qc CMakeFiles\desafio1.dir/objects.a @CMakeFiles\desafio1.dir\objects1.rsp
+C:\Users\Usuario\OneDrive\Documentos\JUAN\qt\Tools\mingw1310_64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\desafio1.dir/objects.a -Wl,--no-whole-archive -o desafio1.exe -Wl,--out-implib,libdesafio1.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\desafio1.dir\linkLibs.rsp
