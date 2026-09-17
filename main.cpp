@@ -1,76 +1,108 @@
 #include <iostream>
-#include "funciones.h"
+#include <cstdlib>
+#include <ctime>
+#include <limits>
+#include "combinaciones.h"
 
-// Imprime un byte en binario, MSB primero (para comparar visualmente
-// con las figuras del documento).
-void imprimir_byte(unsigned char b) {
-    for (int bit = 7; bit >= 0; bit--) {
-        std::cout << (((b >> bit) & 1) ? '1' : '0');
+// Lee un entero de forma segura. Si el usuario escribe algo que no es un
+// numero, limpia el error de cin y descarta lo que quedo en el buffer,
+// para que el programa no quede en ciclo infinito leyendo un stream roto.
+bool leer_entero(int &valor) {
+    std::cin >> valor;
+    if (std::cin.fail()) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        return false;
     }
-}
-
-void imprimir_tablero_bytes(const unsigned char* tablero, int totalBytes) {
-    for (int i = 0; i < totalBytes; i++) {
-        imprimir_byte(tablero[i]);
-        std::cout << " ";
-    }
-    std::cout << std::endl;
+    return true;
 }
 
 int main() {
-    // Reproduce EXACTAMENTE el ejemplo de la Figura 2 del documento:
-    // fichas lógicas: A B C D E F A B  (1 fila, 8 columnas)
-    // códigos:        0 1 2 3 4 5 0 1
-    // resultado esperado en bytes: 00000101 00111001 01000001
-    int filas = 1, columnas = 8;
-    int totalFichas = filas * columnas;
-    int totalBytes = bytes_necesarios(totalFichas);
+    srand((unsigned int) time(0));
 
-    unsigned char* tablero = new unsigned char[totalBytes];
-    for (int i = 0; i < totalBytes; i++) tablero[i] = 0;
-
-    unsigned char secuencia[8] = {
-        FICHA_A, FICHA_B, FICHA_C, FICHA_D, FICHA_E, FICHA_F, FICHA_A, FICHA_B
-    };
-
-    for (int c = 0; c < columnas; c++) {
-        escribir_ficha(tablero, 0, c, columnas, secuencia[c]);
+    int filas, columnas;
+    std::cout << "Filas del tablero: ";
+    while (!leer_entero(filas)) {
+        std::cout << "Entrada invalida. Filas del tablero: ";
+    }
+    std::cout << "Columnas del tablero: ";
+    while (!leer_entero(columnas)) {
+        std::cout << "Entrada invalida. Columnas del tablero: ";
     }
 
-    std::cout << "Bytes obtenidos:  ";
-    imprimir_tablero_bytes(tablero, totalBytes);
-    std::cout << "Bytes esperados:  00000101 00111001 01000001" << std::endl;
+    unsigned char* tablero = crear_tablero(filas, columnas);
+    generar_aleatorio(tablero, filas, columnas);
 
-    // Verificación automática byte a byte.
-    unsigned char esperado[3] = {0x05, 0x39, 0x41};
-    bool ok = true;
-    for (int i = 0; i < totalBytes; i++) {
-        if (tablero[i] != esperado[i]) {
-            ok = false;
-            std::cout << "  -> DIFERENCIA en byte " << i << std::endl;
+    // Metricas de la partida completa (Fase 5 del documento).
+    int totalMovimientos = 0;
+    int totalFichasEliminadas = 0;
+    int totalCascadas = 0;
+    int totalCombinaciones = 0;
+    int puntuacion = 0;
+
+    mostrar_tablero(tablero, filas, columnas);
+
+    bool jugando = true;
+    while (jugando) {
+        int fila, columna;
+        std::cout << std::endl << "Fila a eliminar (-1 para salir): ";
+        if (!leer_entero(fila)) {
+            std::cout << "Entrada invalida, intenta de nuevo." << std::endl;
+            continue;
         }
-    }
-
-    // Verificación de lectura: cada posición debe devolver el valor escrito.
-    for (int c = 0; c < columnas; c++) {
-        unsigned char leido = leer_ficha(tablero, 0, c, columnas);
-        if (leido != secuencia[c]) {
-            ok = false;
-            std::cout << "  -> DIFERENCIA leyendo columna " << c << std::endl;
+        if (fila == -1) {
+            jugando = false;
+            continue;
         }
+        std::cout << "Columna a eliminar: ";
+        if (!leer_entero(columna)) {
+            std::cout << "Entrada invalida, intenta de nuevo." << std::endl;
+            continue;
+        }
+
+        if (!eliminar_ficha(tablero, filas, columnas, fila, columna)) {
+            std::cout << "Coordenada fuera de rango." << std::endl;
+            continue;
+        }
+
+        totalMovimientos++;
+        totalFichasEliminadas++; // la ficha que el jugador elimino a mano
+
+        // La eliminacion manual siempre dispara gravedad + relleno,
+        // haya o no combinacion (asi funciona Sweet Crush: se elimina
+        // una sola ficha directamente, no se espera a que haga match).
+        aplicar_gravedad(tablero, filas, columnas);
+        rellenar_vacios(tablero, filas, columnas);
+
+        // A partir de ahi, puede que el relleno haya generado
+        // combinaciones nuevas: se procesan en cascada hasta estabilizar.
+        int cascadasEstaJugada = 0;
+        int combinacionesEstaJugada = 0;
+        int eliminadasEnCascadas = procesar_cascadas(tablero, filas, columnas,
+                                                     &cascadasEstaJugada,
+                                                     &combinacionesEstaJugada);
+
+        totalFichasEliminadas += eliminadasEnCascadas;
+        totalCascadas += cascadasEstaJugada;
+        totalCombinaciones += combinacionesEstaJugada;
+
+        // Criterio de puntuacion (documentado): 10 puntos por cada ficha
+        // eliminada en cascada, mas un bono de 25 puntos por cada nivel
+        // de cascada extra, para premiar reacciones en cadena largas.
+        puntuacion += eliminadasEnCascadas * 10 + cascadasEstaJugada * 25;
+
+        mostrar_tablero(tablero, filas, columnas);
+
+        std::cout << std::endl << "--- Estado de la partida ---" << std::endl;
+        std::cout << "Dimensiones: " << filas << " x " << columnas << std::endl;
+        std::cout << "Movimientos del jugador: " << totalMovimientos << std::endl;
+        std::cout << "Fichas eliminadas (total): " << totalFichasEliminadas << std::endl;
+        std::cout << "Combinaciones detectadas (total): " << totalCombinaciones << std::endl;
+        std::cout << "Cascadas en esta jugada: " << cascadasEstaJugada
+                  << " (total acumulado: " << totalCascadas << ")" << std::endl;
+        std::cout << "Puntuacion: " << puntuacion << std::endl;
     }
-
-    // Prueba de escritura puntual: cambiar la ficha en (0,5) y confirmar
-    // que las demás posiciones no se corrompen (caso típico de ficha que
-    // cruza dos bytes, ver Figura 3).
-    escribir_ficha(tablero, 0, 5, columnas, ESTADO_VACIO);
-    if (leer_ficha(tablero, 0, 5, columnas) != ESTADO_VACIO) ok = false;
-    if (leer_ficha(tablero, 0, 4, columnas) != FICHA_E) ok = false; // vecina intacta
-    if (leer_ficha(tablero, 0, 6, columnas) != FICHA_A) ok = false; // vecina intacta
-
-    std::cout << (ok ? "OK: todas las pruebas pasaron."
-                     : "FALLO: revisar el modulo de bits.") << std::endl;
 
     delete[] tablero;
-    return ok ? 0 : 1;
+    return 0;
 }

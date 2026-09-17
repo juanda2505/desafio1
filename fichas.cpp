@@ -1,15 +1,18 @@
-#include "funciones.h"
-
-int calcular_indice(int fila, int columna, int columnas) {
+#include "fichas.h"
+//funcion traduce una posicion 2D (fila, columna) a una posicion 1D (un solo numero)
+int calcular_indice(int fila, int columna, int columnas)
+{
     return fila * columnas + columna;
 }
-
-int calcular_bit_inicial(int indice) {
-    return indice * BITS_POR_FICHA;
+//funcion que dice en que bit exacto de toda la tira empieza esa ficha
+int calcular_bit_inicial(int indice)
+{
+    return indice * bits_por_ficha;
 }
 
-int bytes_necesarios(int totalFichas) {
-    int totalBits = totalFichas * BITS_POR_FICHA;
+int bytes_necesarios(int totalFichas)
+{
+    int totalBits = totalFichas * bits_por_ficha;
     // Redondeo hacia arriba a bytes completos: (bits + 7) / 8
     return (totalBits + 7) / 8;
 }
@@ -25,14 +28,16 @@ int bytes_necesarios(int totalFichas) {
 // bits (byte actual en la mitad alta) y trabajamos ahí; el byte siguiente
 // solo se toca cuando la ficha realmente lo necesita.
 
-unsigned char leer_ficha_por_indice(const unsigned char* tablero, int indice) {
+unsigned char leer_ficha_por_indice(const unsigned char* tablero, int indice)
+{
     int bitInicial   = calcular_bit_inicial(indice);
     int byteIndex    = bitInicial / 8;
     int bitOffset    = bitInicial % 8;      // bits ya consumidos en este byte, contados desde el MSB
-    bool cruzaByte   = (bitOffset + BITS_POR_FICHA) > 8;
+    bool cruzaByte   = (bitOffset + bits_por_ficha) > 8;
 
     unsigned int combinado = ((unsigned int) tablero[byteIndex]) << 8;
-    if (cruzaByte) {
+    if (cruzaByte)
+    {
         combinado = combinado | (unsigned int) tablero[byteIndex + 1];
     }
 
@@ -44,16 +49,18 @@ unsigned char leer_ficha_por_indice(const unsigned char* tablero, int indice) {
     return (unsigned char) ((combinado >> desplazamiento) & 0x07);
 }
 
-void escribir_ficha_por_indice(unsigned char* tablero, int indice, unsigned char valor) {
+void escribir_ficha_por_indice(unsigned char* tablero, int indice, unsigned char valor)
+{
     valor = valor & 0x07; // nos aseguramos de usar solo los 3 bits bajos
 
     int bitInicial = calcular_bit_inicial(indice);
     int byteIndex  = bitInicial / 8;
     int bitOffset  = bitInicial % 8;
-    bool cruzaByte = (bitOffset + BITS_POR_FICHA) > 8;
+    bool cruzaByte = (bitOffset + bits_por_ficha) > 8;
 
     unsigned int combinado = ((unsigned int) tablero[byteIndex]) << 8;
-    if (cruzaByte) {
+    if (cruzaByte)
+    {
         combinado = combinado | (unsigned int) tablero[byteIndex + 1];
     }
 
@@ -64,17 +71,20 @@ void escribir_ficha_por_indice(unsigned char* tablero, int indice, unsigned char
     combinado = (combinado & ~mascara) | valorDesplazado;
 
     tablero[byteIndex] = (unsigned char) ((combinado >> 8) & 0xFF);
-    if (cruzaByte) {
+    if (cruzaByte)
+    {
         tablero[byteIndex + 1] = (unsigned char) (combinado & 0xFF);
     }
 }
 
-unsigned char leer_ficha(const unsigned char* tablero, int fila, int columna, int columnas) {
+unsigned char leer_ficha(const unsigned char* tablero, int fila, int columna, int columnas)
+{
     int indice = calcular_indice(fila, columna, columnas);
     return leer_ficha_por_indice(tablero, indice);
 }
 
-void escribir_ficha(unsigned char* tablero, int fila, int columna, int columnas, unsigned char valor) {
+void escribir_ficha(unsigned char* tablero, int fila, int columna, int columnas, unsigned char valor)
+{
     int indice = calcular_indice(fila, columna, columnas);
     escribir_ficha_por_indice(tablero, indice, valor);
 }
