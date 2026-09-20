@@ -11,7 +11,9 @@ add_executable(desafio1 main.cpp
     tablero.cpp
     tablero.h
     combinaciones.h
-    combinaciones.cpp)
+    combinaciones.cpp
+    estructura.h
+    estructura.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS desafio1
