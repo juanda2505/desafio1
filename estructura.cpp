@@ -1,29 +1,36 @@
 #include "estructura.h"
 #include <cstdlib>
 
-bool insertar_fila(unsigned char*& tablero, int& filas, int& columnas,
-                   int& capacidadBytes, int posicionFila) {
-    if (posicionFila < 0 || posicionFila > filas) {
+bool insertar_fila(unsigned char*& tablero, int& filas, int& columnas,//(&)puede modificar las funciones de main
+                   int& capacidadBytes, int posicionFila)
+{
+    if (posicionFila < 0 || posicionFila > filas)
+    {
         return false; // posicion invalida: no toca nada
     }
 
     int nuevasFilas = filas + 1;
     int nuevosBytesNecesarios = bytes_necesarios(nuevasFilas * columnas);
 
-    unsigned char* nuevoTablero = new unsigned char[nuevosBytesNecesarios];
-    for (int i = 0; i < nuevosBytesNecesarios; i++) {
+    unsigned char* nuevoTablero = new unsigned char[nuevosBytesNecesarios];//reservamos un bloque nuevo del tamaño correcto para las dimensiones nuevas, y lo inicializamos en cero
+    for (int i = 0; i < nuevosBytesNecesarios; i++)
+    {
         nuevoTablero[i] = 0;
     }
 
     // Reconstruimos fila por fila con las dimensiones NUEVAS, leyendo del
     // tablero VIEJO (que todavia usa las dimensiones viejas) cuando
     // corresponde a una fila que ya existia.
-    for (int f = 0; f < nuevasFilas; f++) {
-        for (int c = 0; c < columnas; c++) {
+    for (int f = 0; f < nuevasFilas; f++)//se copia la fila del viejo
+    {
+        for (int c = 0; c < columnas; c++)
+        {
             unsigned char valor;
-            if (f < posicionFila) {
-                valor = leer_ficha(tablero, f, c, columnas); // misma fila de antes
-            } else if (f == posicionFila) {
+            if (f < posicionFila)
+            {
+                valor = leer_ficha(tablero, f, c, columnas);//se copia la fila del viejo
+            } else if (f == posicionFila)
+            {
                 valor = (unsigned char) (rand() % 6); // fila nueva, ficha aleatoria
             } else {
                 valor = leer_ficha(tablero, f - 1, c, columnas); // se corrio una fila
@@ -32,7 +39,7 @@ bool insertar_fila(unsigned char*& tablero, int& filas, int& columnas,
         }
     }
 
-    delete[] tablero;
+    delete[] tablero;//Liberamos el bloque viejo
     tablero = nuevoTablero;
     filas = nuevasFilas;
     capacidadBytes = nuevosBytesNecesarios; // insertar siempre reasigna
@@ -40,13 +47,14 @@ bool insertar_fila(unsigned char*& tablero, int& filas, int& columnas,
 }
 
 bool eliminar_fila(unsigned char*& tablero, int& filas, int& columnas,
-                   int& capacidadBytes, int posicionFila) {
-    if (posicionFila < 0 || posicionFila >= filas) {
+                   int& capacidadBytes, int posicionFila)
+{
+    if (posicionFila < 0 || posicionFila >= filas)
+    {
         return false;
     }
-    if (filas <= 1) {
-        return false; // no se permite dejar el tablero sin filas
-    }
+    // A proposito NO se impide llegar a 0 filas: el profesor indico que
+    // dejar el tablero sin filas es una decision valida del usuario.
 
     int nuevasFilas = filas - 1;
     int nuevosBytesNecesarios = bytes_necesarios(nuevasFilas * columnas);
@@ -54,13 +62,16 @@ bool eliminar_fila(unsigned char*& tablero, int& filas, int& columnas,
     // Construimos el resultado en un bloque temporal (no podemos escribir
     // "encima" del tablero viejo mientras seguimos leyendo de el).
     unsigned char* temporal = new unsigned char[nuevosBytesNecesarios];
-    for (int i = 0; i < nuevosBytesNecesarios; i++) {
+    for (int i = 0; i < nuevosBytesNecesarios; i++)
+    {
         temporal[i] = 0;
     }
 
-    for (int f = 0; f < nuevasFilas; f++) {
+    for (int f = 0; f < nuevasFilas; f++)
+    {
         int fOrigen = (f < posicionFila) ? f : f + 1; // saltar la fila eliminada
-        for (int c = 0; c < columnas; c++) {
+        for (int c = 0; c < columnas; c++)
+        {
             unsigned char valor = leer_ficha(tablero, fOrigen, c, columnas);
             escribir_ficha(temporal, f, c, columnas, valor);
         }
@@ -70,14 +81,17 @@ bool eliminar_fila(unsigned char*& tablero, int& filas, int& columnas,
     // resultante cae por debajo del 65% de lo que ya teniamos reservado.
     double ocupacion = (double) nuevosBytesNecesarios / (double) capacidadBytes;
 
-    if (ocupacion < 0.65) {
+    if (ocupacion < 0.65)
+    {
         delete[] tablero;
-        tablero = temporal;
+        tablero = temporal;//liberamos el tablero viejo, y temporal pasa a ser el tablero oficial
         capacidadBytes = nuevosBytesNecesarios;
-    } else {
+    } else
+    {
         // Seguimos usando el mismo bloque (mas grande de lo necesario):
         // copiamos los bytes validos al inicio y liberamos el temporal.
-        for (int i = 0; i < nuevosBytesNecesarios; i++) {
+        for (int i = 0; i < nuevosBytesNecesarios; i++)
+        {
             tablero[i] = temporal[i];
         }
         delete[] temporal;
@@ -89,8 +103,10 @@ bool eliminar_fila(unsigned char*& tablero, int& filas, int& columnas,
 }
 
 bool insertar_columna(unsigned char*& tablero, int& filas, int& columnas,
-                      int& capacidadBytes, int posicionColumna) {
-    if (posicionColumna < 0 || posicionColumna > columnas) {
+                      int& capacidadBytes, int posicionColumna)
+{
+    if (posicionColumna < 0 || posicionColumna > columnas)
+    {
         return false;
     }
 
@@ -99,18 +115,24 @@ bool insertar_columna(unsigned char*& tablero, int& filas, int& columnas,
     int nuevosBytesNecesarios = bytes_necesarios(filas * nuevasColumnas);
 
     unsigned char* nuevoTablero = new unsigned char[nuevosBytesNecesarios];
-    for (int i = 0; i < nuevosBytesNecesarios; i++) {
+    for (int i = 0; i < nuevosBytesNecesarios; i++)
+    {
         nuevoTablero[i] = 0;
     }
 
-    for (int f = 0; f < filas; f++) {
-        for (int c = 0; c < nuevasColumnas; c++) {
+    for (int f = 0; f < filas; f++)
+    {
+        for (int c = 0; c < nuevasColumnas; c++)
+        {
             unsigned char valor;
-            if (c < posicionColumna) {
+            if (c < posicionColumna)
+            {
                 valor = leer_ficha(tablero, f, c, columnasViejas);
-            } else if (c == posicionColumna) {
+            } else if (c == posicionColumna)
+            {
                 valor = (unsigned char) (rand() % 6);
-            } else {
+            } else
+            {
                 valor = leer_ficha(tablero, f, c - 1, columnasViejas);
             }
             escribir_ficha(nuevoTablero, f, c, nuevasColumnas, valor);
@@ -124,26 +146,28 @@ bool insertar_columna(unsigned char*& tablero, int& filas, int& columnas,
     return true;
 }
 
-bool eliminar_columna(unsigned char*& tablero, int& filas, int& columnas,
-                      int& capacidadBytes, int posicionColumna) {
+bool eliminar_columna(unsigned char*& tablero, int& filas, int& columnas,int& capacidadBytes, int posicionColumna)
+{
     if (posicionColumna < 0 || posicionColumna >= columnas) {
         return false;
     }
-    if (columnas <= 1) {
-        return false; // no se permite dejar el tablero sin columnas
-    }
+    // Misma decision de diseño que en eliminar_fila: se permite llegar
+    // a 0 columnas, es responsabilidad del usuario.
 
     int columnasViejas = columnas;
     int nuevasColumnas = columnas - 1;
     int nuevosBytesNecesarios = bytes_necesarios(filas * nuevasColumnas);
 
     unsigned char* temporal = new unsigned char[nuevosBytesNecesarios];
-    for (int i = 0; i < nuevosBytesNecesarios; i++) {
+    for (int i = 0; i < nuevosBytesNecesarios; i++)
+    {
         temporal[i] = 0;
     }
 
-    for (int f = 0; f < filas; f++) {
-        for (int c = 0; c < nuevasColumnas; c++) {
+    for (int f = 0; f < filas; f++)
+    {
+        for (int c = 0; c < nuevasColumnas; c++)
+        {
             int cOrigen = (c < posicionColumna) ? c : c + 1;
             unsigned char valor = leer_ficha(tablero, f, cOrigen, columnasViejas);
             escribir_ficha(temporal, f, c, nuevasColumnas, valor);
@@ -152,12 +176,14 @@ bool eliminar_columna(unsigned char*& tablero, int& filas, int& columnas,
 
     double ocupacion = (double) nuevosBytesNecesarios / (double) capacidadBytes;
 
-    if (ocupacion < 0.65) {
+    if (ocupacion < 0.65)
+    {
         delete[] tablero;
         tablero = temporal;
         capacidadBytes = nuevosBytesNecesarios;
     } else {
-        for (int i = 0; i < nuevosBytesNecesarios; i++) {
+        for (int i = 0; i < nuevosBytesNecesarios; i++)
+        {
             tablero[i] = temporal[i];
         }
         delete[] temporal;

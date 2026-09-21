@@ -16,8 +16,8 @@ int bytes_necesarios(int totalFichas)
     // Redondeo hacia arriba a bytes completos: (bits + 7) / 8
     return (totalBits + 7) / 8;
 }
-// Estas funciones son las ÚNICAS que deben tocar directamente los
-// bits del tablero; todo lo demas debe llamarlas.
+//Estas funciones son las ÚNICAS que deben tocar directamente los
+//bits del tablero; todo lo demas debe llamarlas.
 
 //dado el indice de una ficha, extrae su valor(0 a 7) leyendo directamente
 //los bits de memoria sin importar si esa ficha vive completa en un byte o esta entre dos
@@ -34,7 +34,7 @@ unsigned char leer_ficha_por_indice(const unsigned char* tablero, int indice)
         combinado = combinado | (unsigned int) tablero[byteIndex + 1];
     }
 
-    // Los 16 bits de 'combinado' van de la posición 15 a la 0
+    // Los 16 bits de "combinado" van de la posición 15 a la 0
     // La ficha empieza en la posición (15 - bitOffset) y ocupa 3 bits, así que para alinearla al extremo
     // derecho desplazamos (15 - bitOffset - 2) = (13 - bitOffset) lugares.
     int desplazamiento = 13 - bitOffset;

@@ -13,27 +13,26 @@ const unsigned char ESTADO_ESPECIAL = 7; // 111 - reservado para uso futuro
 
 const int bits_por_ficha = 3;
 
-// Aritmetica de localizacion
-// índice = fila * columnas + columna
+// aritmetica de localizacion
+// indice = fila * columnas + columna
 int calcular_indice(int fila, int columna, int columnas);
 
-// bit_inicial = índice * 3
+// bit_inicial = indice * 3
 int calcular_bit_inicial(int indice);
 
-// Bytes mínimos necesarios para almacenar 'totalFichas' fichas de 3 bits.
+// bytes minimos necesarios para almacenar "totalFichas" fichas de 3 bits
 int bytes_necesarios(int totalFichas);
 
-// Acceso a nivel de bits. 'tablero' es la tira continua de bytes en memoria
-// dinámica. Estas funciones son las ÚNICAS que deben tocar directamente los
-// bits del tablero; todo lo demás debe llamarlas.
+// acceso a nivel de bits. "tablero" es la tira continua de bytes en memoria dinamica
+//Estas funciones son las unicas que deben tocar directamente los bits del tablero
 
-// Extrae el valor de 3 bits (0-7) de la posición (fila,columna).
+// extrae el valor de 3 bits (0-7) de la posición (fila,columna)
 unsigned char leer_ficha(const unsigned char* tablero, int fila, int columna, int columnas);
 
-// Escribe 'valor' (solo se usan sus 3 bits bajos) en (fila,columna).
+// Escribe "valor" (solo se usan sus 3 bits bajos) en (fila,columna)
 void escribir_ficha(unsigned char* tablero, int fila, int columna, int columnas, unsigned char valor);
 
-// Versiones por índice plano, útiles al reorganizar el tablero linealmente.
+// Versiones por indice plano, utiles al reorganizar el tablero linealmente
 unsigned char leer_ficha_por_indice(const unsigned char* tablero, int indice);
 void escribir_ficha_por_indice(unsigned char* tablero, int indice, unsigned char valor);
 
